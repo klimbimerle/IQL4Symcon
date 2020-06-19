@@ -5,65 +5,64 @@
       "label": "Connect"
     },
     {
-      "type": "List",
-      "name": "Variables",
-      "caption": "Variables",
-      "rowCount": 10,
-      "add": true,
-      "delete": true,
-      "sort": {
-        "column": "Name",
-        "direction": "ascending"
-      },
-      "columns": [
+      "type": "ExpansionPanel",
+      "name": "Switches",
+      "caption": "Switches",
+      "visible": true,
+      "items": [
         {
-          "label": "ID",
-          "name": "ID",
-          "width": "50px",
-          "add": 0,
-          "visible": true,
-          "edit": {
-            "type": "SelectVariable"
-          }
-        },
-        {
-          "label": "Device",
-          "name": "Device",
-          "width": "100px",
-          "add": ""
-        },
-        {
-          "label": "Name",
-          "name": "Name",
-          "width": "100px",
-          "add": "",
-          "edit": {
-            "type": "ValidationTextBox"
-          }
-        },
-        {
-          "label": "Type",
-          "name": "VariablesType",
-          "width": "75px",
-          "add": "",
-          "visible": false
-        },
-        {
-          "label": "State",
-          "name": "State",
-          "width": "75px",
-          "add": ""
-        },
-        {
-          "label": "amzID",
-          "name": "amzID",
-          "width": "75px",
-          "add": 0,
-          "visible": false,
-          "save": true
+          "type": "List",
+          "name": "Switches",
+          "caption": "Switches",
+          "rowCount": 5,
+          "add": true,
+          "delete": true,
+          "sort": {
+            "column": "Name",
+            "direction": "ascending"
+          },
+          "columns": [
+            {
+              "caption": "ID",
+              "name": "ID",
+              "width": "35px",
+              "add": 0,
+              "visible": true,
+              "save": true,
+              "edit": {
+                "type": "SelectVariable"
+              }
+            },
+            {
+              "label": "Device",
+              "name": "Device",
+              "width": "100px",
+              "add": ""
+            },            {
+              "label": "Name",
+              "name": "Name",
+              "width": "auto",
+              "add": "",
+              "edit": {
+                "type": "ValidationTextBox"
+              }
+            },
+            {
+              "label": "Type",
+              "name": "VariablesType",
+              "width": "75px",
+              "add": "",
+            },
+            {
+              "label": "State",
+              "name": "State",
+              "width": "100px",
+              "add": ""
+            }
+          ],
+          "values": [
+          ]
         }
-      ],
-      "values": [
       ]
     },
     {
