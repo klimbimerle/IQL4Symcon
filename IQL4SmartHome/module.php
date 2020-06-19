@@ -1127,13 +1127,13 @@ class HCPIntegration extends IPSModule {
                         else {
                             $rowcolor = "";
                         }
-                        $data['elements'][1]['values'][] = Array(
+                        $data['elements'][1]['items'][0]['values'][] = Array(
                             "Device" => IPS_GetLocation($treeRowD['ID']),
                             "State" => $devices[$treeRowD['ID']],
                             "rowColor" => $rowcolor
                         );
                     } else {
-                        $data['elements'][1]['values'][] = Array(
+                        $data['elements'][1]['items'][0]['values'][] = Array(
                             "Device" => "Not found!",
                             "rowColor" => "#ff0000"
                         );
