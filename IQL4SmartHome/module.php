@@ -25,8 +25,18 @@ class HCPIntegration extends IPSModule {
         //Never delete this line!
         parent::ApplyChanges();
 
-        $store = json_decode($this->ReadPropertyString("Variables"),true);
-        $this->SendDebug("HCPIntegration",print_r($store,true),0);
+        // store configuration in variable 
+        $guid = "{3F0154A4-AC42-1234-9E9A-6818D775EFC4}";
+        $id = IPS_GetInstanceListByModuleID($guid)[0];
+        $storage = @IPS_GetObjectIDByName ("Devices", $id);
+        if ($storage === false) {
+            $storage = IPS_CreateVariable(3);
+            IPS_SetName($storage, "Devices");
+            IPS_SetParent($storage, $id);
+        }
+        $content = $this->ReadPropertyString("Variables");
+        SetValue($storage, $content);
+
 
         $this->RegisterOAuth("amazon_smarthome");
 
