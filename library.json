@@ -1,9 +1,9 @@
 {
-  "id": "{C47634F0-B0D3-48E1-8B07-2FC64A0B1A85}",
-  "author": "IQLiving",
-  "name": "IQL4Symcon",
-  "url": "www.iqliving.de",
-  "version": "2.00",
+  "id": "{C47634F0-B0D3-1234-8B07-2FC64A0B1A85}",
+  "author": "RIoT",
+  "name": "HCPIntegration",
+  "url": "www.none.de",
+  "version": "1.00",
   "build": 0,
   "date": 0
 }

@@ -1,14 +1,14 @@
 {
-  "id": "{3F0154A4-AC42-464A-9E9A-6818D775EFC4}",
-  "name": "IQL4SmartHome",
+  "id": "{3F0154A4-AC42-1234-9E9A-6818D775EFC4}",
+  "name": "HCPIntegration",
   "type": 0,
-  "vendor": "IQLiving",
+  "vendor": "RIoT",
   "aliases":
   [
-    "IQL4SmartHome"
+    "HCPIntegration"
   ],
   "parentRequirements": [],
   "childRequirements": [],
   "implemented": [],
-  "prefix": "IQL4SH"
+  "prefix": "RIOT"
 }
