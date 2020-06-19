@@ -1,5 +1,5 @@
 <?
-class IQL4SmartHome extends IPSModule {
+class HCPIntegration extends IPSModule {
 
     private $switchFunctions = Array("turnOn", "turnOff");
     private $dimmingFunctions = Array("setPercentage", "incrementPercentage", "decrementPercentage");
@@ -824,7 +824,7 @@ class IQL4SmartHome extends IPSModule {
                 IPS_RunScriptEx($targetID, Array("VARIABLE" => $sourceID, "VALUE" => $action, "SENDER" => $this->ReadPropertyString("Sender"), "REQUEST" => $data['header']['name']));
             }
         }
-        
+
         if(isset($result)) {
             if($result == false) {
                 $headerName = 'TargetHardwareMalfunctionError';
