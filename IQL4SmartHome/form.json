@@ -48,12 +48,6 @@
               }
             },
             {
-              "label": "Type",
-              "name": "VariablesType",
-              "width": "75px",
-              "add": ""
-            },
-            {
               "label": "State",
               "name": "State",
               "width": "100px",

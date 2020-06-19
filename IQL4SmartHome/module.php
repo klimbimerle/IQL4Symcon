@@ -25,6 +25,9 @@ class HCPIntegration extends IPSModule {
         //Never delete this line!
         parent::ApplyChanges();
 
+        $store = json_decode($this->ReadPropertyString("Variables"),true);
+        $this->SendDebug("HCPIntegration",print_r($store,true),0);
+
         $this->RegisterOAuth("amazon_smarthome");
 
         $newDevices = array();
@@ -1019,146 +1022,62 @@ class HCPIntegration extends IPSModule {
         return $hex;
     }
 
-    public function ConvertToV2() {
-
-        $convertToUTF8 = function($arr) {
-            $strencode = function(&$item, $key) {
-                if ( is_string($item) && !mb_detect_encoding($item, 'UTF-8', true) )
-                    $item = utf8_encode($item);
-                else if ( is_array($item) )
-                    array_walk_recursive($item, $strencode);
-            };
-            array_walk_recursive($arr, $strencode);
-            return $arr;
-        };
-
-        if($this->ReadPropertyString("Variables") == "[]" and $this->ReadPropertyString("Scripts") == "[]") {
-            $newDevices = array();
-            $newScripts = array();
-            $wasChanged = false;
-            $oldDevices = $this->GetChildrenIDsRecursive($this->InstanceID);
-            if(count($oldDevices) >0) {
-                foreach($oldDevices as $device) {
-                    if(IPS_GetObject($device)['ObjectType'] != 6)
-                        continue;
-                    $targetID = IPS_GetLink($device)['TargetID'];
-                    $targetObject = IPS_GetObject($targetID);
-                    if($targetObject['ObjectType'] == 2 /* Variable */) {
-                        if($this->ReadPropertyBoolean("MultipleLinking") == true) {
-                            $d['amzID'] = $device;
-                        }
-                        else {
-                            $d['amzID'] = IPS_GetLink($device)['TargetID'];
-                        }
-                        $d['ID'] = IPS_GetLink($device)['TargetID'];
-                        $d['Name'] = IPS_GetObject($device)['ObjectName'];
-                        array_push($newDevices,$d);
-                    }
-                    elseif($targetObject['ObjectType'] == 3 /* Script */) {
-                        if($this->ReadPropertyBoolean("MultipleLinking") == true) {
-                            $s['amzID'] = $device;
-                        }
-                        else {
-                            $s['amzID'] = IPS_GetLink($device)['TargetID'];
-                        }
-                        $s['ID'] = IPS_GetLink($device)['TargetID'];
-                        $s['ScriptType'] = "Legacy";
-                        $s['Name'] = IPS_GetObject($device)['ObjectName'];
-                        array_push($newScripts,$s);
-                    }
-                }
-            }
-            if(count($newDevices) > 0) {
-                $jsonVariables = json_encode($convertToUTF8($newDevices));
-                if($jsonVariables === false) {
-                    echo "Fehler, die Konvertierung der Variablen konnte nicht durchgeführt werden";
-                    return false;
-                }
-                IPS_SetProperty($this->InstanceID,"Variables", $jsonVariables);
-                $wasChanged = true;
-            }
-            if(count($newScripts) > 0) {
-                $jsonScripts = json_encode($convertToUTF8($newScripts));
-                if($jsonScripts === false) {
-                    echo "Fehler, die Konvertierung der Skripte konnte nicht durchgeführt werden";
-                    return false;
-                }
-                IPS_SetProperty($this->InstanceID,"Scripts", $jsonScripts);
-                $wasChanged = true;
-            }
-            if($wasChanged == true) {
-                IPS_ApplyChanges($this->InstanceID);
-            }
-            echo "Konvertierung erfolgreich abgeschlossen, bitte die Instanz schließen und wieder öffnen";
-            return true;
-        }
-        else {
-            echo "Fehler, die Konvertierung konnte nicht durchgeführt werden";
-            return false;
-        }
-    }
-
     public function GetConfigurationForm() {
-        if($this->ReadPropertyString("Variables") == "[]" and $this->ReadPropertyString("Scripts") == "[]" and count($this->GetChildrenIDsRecursive($this->InstanceID)) >0) {
-            $data['elements'][0] = Array("type" => "Label", "label" => "Bitte den Button klicken um in das neue Modulformat zu konvertieren");
-            $data['actions'][0] = array("type" => "Button", "label" => "Convert", "onClick" => "IQL4SH_ConvertToV2(\$id);");
-        }
-        else {
-            $data = json_decode(file_get_contents(__DIR__ . "/form.json"),true);
-            $devices = $this->DiscoveryCheck();
-            $ids = IPS_GetInstanceListByModuleID("{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}");
-            if(IPS_GetInstance($ids[0])['InstanceStatus'] != 102) {
-                $message = "Error: Symcon Connect is not active!";
-            } else {
-                $message = "Status: Symcon Connect is OK!";
-            }
+      $data = json_decode(file_get_contents(__DIR__ . "/form.json"),true);
+      $devices = $this->DiscoveryCheck();
+      $ids = IPS_GetInstanceListByModuleID("{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}");
+      if(IPS_GetInstance($ids[0])['InstanceStatus'] != 102) {
+          $message = "Error: Symcon Connect is not active!";
+      } else {
+          $message = "Status: Symcon Connect is OK!";
+      }
 
-            $data['elements'][0] = Array("type" => "Label", "label" => $message);
+      $data['elements'][0] = Array("type" => "Label", "label" => $message);
 
-            if($this->ReadPropertyString("Variables") != "") {
-                $treeDataDevice = json_decode($this->ReadPropertyString("Variables"),true);
-                foreach($treeDataDevice as $treeRowD) {
-                    //We only need to add annotations. Remaining data is merged from persistance automatically.
-                    //Order is determinted by the order of array elements
-                    if(IPS_ObjectExists($treeRowD['ID'])) {
-                        if($devices[$treeRowD['ID']] != "OK") {
-                            $rowcolor = "#ff0000";
-                        }
-                        else {
-                            $rowcolor = "";
-                        }
-                        $data['elements'][1]['items'][0]['values'][] = Array(
-                            "Device" => IPS_GetLocation($treeRowD['ID']),
-                            "State" => $devices[$treeRowD['ID']],
-                            "rowColor" => $rowcolor
-                        );
-                    } else {
-                        $data['elements'][1]['items'][0]['values'][] = Array(
-                            "Device" => "Not found!",
-                            "rowColor" => "#ff0000"
-                        );
-                    }
-                }
-            }
-            if($this->ReadPropertyString("Scripts") != "") {
-                $treeDataScripts = json_decode($this->ReadPropertyString("Scripts"),true);
-                foreach($treeDataScripts as $treeRowS) {
-                    //We only need to add annotations. Remaining data is merged from persistance automatically.
-                    //Order is determinted by the order of array elements
-                    if(IPS_ObjectExists($treeRowS['ID'])) {
-                        $data['elements'][2]['values'][] = Array(
-                            "Script" => IPS_GetLocation($treeRowS['ID']),
-                            "State" => "OK",
-                        );
-                    } else {
-                        $data['elements'][2]['values'][] = Array(
-                            "Script" => "Not found!",
-                            "rowColor" => "#ff0000"
-                        );
-                    }
-                }
-            }
-        }
-        return json_encode($data);
+      if($this->ReadPropertyString("Variables") != "") {
+          $treeDataDevice = json_decode($this->ReadPropertyString("Variables"),true);
+          foreach($treeDataDevice as $treeRowD) {
+              //We only need to add annotations. Remaining data is merged from persistance automatically.
+              //Order is determinted by the order of array elements
+              if(IPS_ObjectExists($treeRowD['ID'])) {
+                  if($devices[$treeRowD['ID']] != "OK") {
+                      $rowcolor = "#ff0000";
+                  }
+                  else {
+                      $rowcolor = "";
+                  }
+                  $data['elements'][1]['items'][0]['values'][] = Array(
+                      "Device" => IPS_GetLocation($treeRowD['ID']),
+                      "State" => $devices[$treeRowD['ID']],
+                      "rowColor" => $rowcolor
+                  );
+              } else {
+                  $data['elements'][1]['items'][0]['values'][] = Array(
+                      "Device" => "Not found!",
+                      "rowColor" => "#ff0000"
+                  );
+              }
+          }
+      }
+      if($this->ReadPropertyString("Scripts") != "") {
+          $treeDataScripts = json_decode($this->ReadPropertyString("Scripts"),true);
+          foreach($treeDataScripts as $treeRowS) {
+              //We only need to add annotations. Remaining data is merged from persistance automatically.
+              //Order is determinted by the order of array elements
+              if(IPS_ObjectExists($treeRowS['ID'])) {
+                  $data['elements'][2]['values'][] = Array(
+                      "Script" => IPS_GetLocation($treeRowS['ID']),
+                      "State" => "OK",
+                  );
+              } else {
+                  $data['elements'][2]['values'][] = Array(
+                      "Script" => "Not found!",
+                      "rowColor" => "#ff0000"
+                  );
+              }
+          }
+      }
+
+      return json_encode($data);
     }
 }
